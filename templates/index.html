@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Cyber Crime Reporting System{% endblock %}
+
+{% block content %}
+<!-- PWA Installation Banner -->
+<div id="pwa-install-banner" class="pwa-banner" style="display: none;">
+  <div class="pwa-banner-content">
+    <h4><i class="fas fa-mobile-alt"></i> Install App on Phone</h4>
+    <p>Add CyberReport to your home screen for quick offline access and emergency reporting.</p>
+  </div>
+  <button id="btn-install-app" class="btn-install">
+    <i class="fas fa-download"></i> Install
+  </button>
+</div>
+
+<!-- Welcome Header -->
+<div style="margin-bottom: 24px;">
+  <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--text-main);">
+    Official Cyber Crime Reporting Portal
+  </h2>
+  <p style="color: var(--text-muted); font-size: 0.9rem;">
+    Securely report online scams, financial fraud, phishing, ransomware, and identity theft directly to law enforcement.
+  </p>
+</div>
+
+<!-- Main Action Buttons -->
+<div class="action-grid">
+  <a href="/report" class="action-card" style="background: linear-gradient(135deg, #0284c7, #1e293b);">
+    <div class="action-icon" style="background: #ffffff; color: #0284c7;">
+      <i class="fas fa-shield-virus"></i>
+    </div>
+    <span style="font-weight: 700; font-size: 1.05rem;">File Report</span>
+    <span style="font-size: 0.75rem; color: #cbd5e1;">Submit evidence & report cyber crime</span>
+  </a>
+
+  <a href="/track" class="action-card">
+    <div class="action-icon">
+      <i class="fas fa-search-location"></i>
+    </div>
+    <span style="font-weight: 700;">Track Status</span>
+    <span style="font-size: 0.75rem; color: var(--text-muted);">Lookup via reference ID</span>
+  </a>
+
+  <a href="/emergency" class="action-card emergency">
+    <div class="action-icon">
+      <i class="fas fa-phone-volume"></i>
+    </div>
+    <span style="font-weight: 700; color: var(--danger);">Emergency SOS</span>
+    <span style="font-size: 0.75rem; color: var(--danger-light);">24/7 Hotlines & account freeze</span>
+  </a>
+</div>
+
+<!-- Quick Track Box -->
+<div class="card">
+  <div class="card-title">
+    <i class="fas fa-search" style="color: var(--primary-light);"></i>
+    <span>Quick Report Lookup</span>
+  </div>
+  <form action="/track" method="GET" style="display: flex; gap: 8px;">
+    <input type="text" name="ref" class="form-control" placeholder="Enter reference e.g. CCR-2026-X9871A" required>
+    <button type="submit" class="btn btn-primary" style="white-space: nowrap;">
+      <i class="fas fa-arrow-right"></i> Track
+    </button>
+  </form>
+</div>
+
+<!-- Cyber Crime Categories Grid -->
+<div class="card">
+  <div class="card-title">
+    <i class="fas fa-list-check" style="color: var(--primary-light);"></i>
+    <span>Reportable Crime Categories</span>
+  </div>
+  
+  <div class="category-select-grid" style="grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));">
+    {% for cat in categories %}
+      <a href="/report?category={{ cat.id }}" class="action-card" style="padding: 12px; font-size: 0.85rem;">
+        <i class="fas {{ cat.icon }}" style="font-size: 1.4rem; color: var(--primary-light);"></i>
+        <span style="font-weight: 600;">{{ cat.name }}</span>
+      </a>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Cyber Safety Tips & Impact Banner -->
+<div class="card" style="background: rgba(30, 41, 59, 0.6); border-left: 4px solid var(--accent);">
+  <div class="card-title" style="color: #a5b4fc;">
+    <i class="fas fa-lightbulb"></i>
+    <span>Immediate Safety Advisory</span>
+  </div>
+  <ul style="padding-left: 20px; font-size: 0.85rem; color: var(--text-muted);">
+    <li><strong>Never share 2FA OTP codes</strong> over call or text with anyone claiming to be bank staff.</li>
+    <li><strong>If money was fraudulently wired</strong>, call your bank immediately to request a <em>SWIFT/ACH Fraud Recall</em>.</li>
+    <li><strong>Keep digital evidence intact</strong>: take screenshots of messages, email headers, and bank receipts before deleting anything.</li>
+  </ul>
+</div>
+
+<!-- Total Stats -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-number">{{ total_reports }}</div>
+    <div class="stat-label">Reports Logged</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number" style="color: var(--success);">{{ resolved_count }}</div>
+    <div class="stat-label">Cases Resolved</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number" style="color: var(--warning);">24/7</div>
+    <div class="stat-label">Monitoring</div>
+  </div>
+</div>
+{% endblock %}

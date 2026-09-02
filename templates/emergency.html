@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Emergency SOS - Cyber Crime Reporting System{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+  <h2 style="font-size: 1.4rem; font-weight: 800; color:var(--danger);">
+    <i class="fas fa-triangle-exclamation"></i> Cyber Crime Emergency SOS
+  </h2>
+  <p style="font-size: 0.85rem; color: var(--text-muted);">
+    If you are under active cyber attack, ransomware encryption, or active bank wire fraud, use these rapid response channels immediately.
+  </p>
+</div>
+
+<!-- 24/7 Hotlines -->
+<div class="card" style="border-left: 4px solid var(--danger);">
+  <div class="card-title" style="color: var(--danger);">
+    <i class="fas fa-headset"></i> 24/7 Rapid Response Hotlines
+  </div>
+
+  <div style="display:flex; flex-direction:column; gap:12px;">
+    {% for contact in contacts %}
+      <div style="background:#090d16; border:1px solid var(--border-color); border-radius:10px; padding:14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <strong style="font-size:0.95rem; color:var(--text-main);">{{ contact.name }}</strong>
+            {% if contact.is_247 %}
+              <span style="background:rgba(239,68,68,0.2); color:var(--danger); border:1px solid var(--danger); font-size:0.65rem; padding:2px 6px; border-radius:10px; font-weight:700;">24/7</span>
+            {% endif %}
+          </div>
+          <p style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;">{{ contact.description }}</p>
+        </div>
+
+        <a href="tel:{{ contact.number }}" class="btn btn-danger" style="white-space:nowrap; text-decoration:none;">
+          <i class="fas fa-phone-alt"></i> {{ contact.number }}
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Urgent Victim Protocols -->
+<div class="card">
+  <div class="card-title">
+    <i class="fas fa-list-check" style="color:var(--primary-light);"></i> Rapid Emergency Checklist
+  </div>
+
+  <div style="display:flex; flex-direction:column; gap:14px;">
+    
+    <div style="background:rgba(2, 132, 199, 0.1); border:1px solid var(--primary); padding:14px; border-radius:8px;">
+      <h4 style="color:var(--primary-light); font-size:0.95rem; margin-bottom:4px;">
+        <i class="fas fa-piggy-bank"></i> 1. Financial / Banking Fraud
+      </h4>
+      <ol style="padding-left:20px; font-size:0.8rem; color:var(--text-main);">
+        <li>Call your bank's fraud division immediately to freeze debit/credit cards and online banking.</li>
+        <li>Request an immediate <em>ACH / SWIFT Wire Recall Notice</em> for any transfers made in the last 72 hours.</li>
+        <li>Notify your national financial intelligence unit.</li>
+      </ol>
+    </div>
+
+    <div style="background:rgba(245, 158, 11, 0.1); border:1px solid var(--warning); padding:14px; border-radius:8px;">
+      <h4 style="color:#fbbf24; font-size:0.95rem; margin-bottom:4px;">
+        <i class="fas fa-key"></i> 2. SIM Swap or Account Takeover
+      </h4>
+      <ol style="padding-left:20px; font-size:0.8rem; color:var(--text-main);">
+        <li>If your mobile phone loses service abruptly, call your telecom provider to lock your SIM card.</li>
+        <li>Revoke active sessions on primary email accounts and update passwords using a separate secure device.</li>
+        <li>Enable Hardware 2FA (Authenticator App / Security Key) instead of SMS 2FA.</li>
+      </ol>
+    </div>
+
+    <div style="background:rgba(239, 68, 68, 0.1); border:1px solid var(--danger); padding:14px; border-radius:8px;">
+      <h4 style="color:var(--danger-light); font-size:0.95rem; margin-bottom:4px;">
+        <i class="fas fa-lock"></i> 3. Ransomware / Malware Attack
+      </h4>
+      <ol style="padding-left:20px; font-size:0.8rem; color:var(--text-main);">
+        <li>Immediately disconnect the infected device from Wi-Fi, Ethernet networks, and Bluetooth.</li>
+        <li>Do NOT pay the ransom—payment does not guarantee file decryption and funds criminal organizations.</li>
+        <li>Preserve a full disk image snapshot for forensic law enforcement inspection.</li>
+      </ol>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
