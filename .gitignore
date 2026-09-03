@@ -1,4 +1,4 @@
-__pycache__/
+﻿__pycache__/
 *.pyc
 *.pyo
 *.pyd
@@ -7,3 +7,15 @@ venv/
 env/
 .vscode/
 .idea/
+
+# SQLite database (Render uses ephemeral storage; DB resets on deploy anyway)
+instance/
+*.db
+
+# Uploaded evidence files (use cloud storage in production)
+static/uploads/
+
+# Local dev only
+START SERVER.bat
+start_local.py
+static/qr/.url_flag

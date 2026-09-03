@@ -590,7 +590,68 @@ def manifest():
     return send_from_directory('static', 'manifest.json', mimetype='application/json')
 
 
+# -------------------------------------------------------------------
+# Install / QR Code Page
+# -------------------------------------------------------------------
+
+def _get_app_url():
+    """Return the public URL for this app (env var, or auto-detect from request context)."""
+    return os.environ.get('APP_PUBLIC_URL', request.host_url.rstrip('/'))
+
+
+def _ensure_qr_code(url: str):
+    """Generate the QR PNG if it doesn't already exist (or URL changed)."""
+    qr_path = os.path.join(app.root_path, 'static', 'qr', 'app_qr.png')
+    flag_path = os.path.join(app.root_path, 'static', 'qr', '.url_flag')
+
+    # Check whether QR needs (re)generation
+    needs_gen = not os.path.exists(qr_path)
+    if os.path.exists(flag_path):
+        with open(flag_path, 'r') as f:
+            if f.read().strip() != url:
+                needs_gen = True
+    else:
+        needs_gen = True
+
+    if needs_gen:
+        try:
+            import qrcode
+            from qrcode.image.styledpil import StyledPilImage
+            from qrcode.image.styles.moduledrawers import RoundedModuleDrawer
+            from PIL import Image
+
+            os.makedirs(os.path.dirname(qr_path), exist_ok=True)
+            qr = qrcode.QRCode(
+                version=1,
+                error_correction=qrcode.constants.ERROR_CORRECT_H,
+                box_size=10,
+                border=2,
+            )
+            qr.add_data(url)
+            qr.make(fit=True)
+            img = qr.make_image(
+                image_factory=StyledPilImage,
+                module_drawer=RoundedModuleDrawer(),
+            ).convert("RGBA")
+            bg = Image.new("RGBA", img.size, (255, 255, 255, 255))
+            bg.paste(img, (0, 0), img)
+            bg.convert("RGB").save(qr_path)
+            with open(flag_path, 'w') as f:
+                f.write(url)
+        except Exception as e:
+            app.logger.warning(f"QR generation failed: {e}")
+
+
+@app.route('/install')
+def install_page():
+    """Serve the PWA install / QR code page."""
+    app_url = _get_app_url()
+    _ensure_qr_code(app_url)
+    return render_template('install.html', app_url=app_url)
+
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
     app.run(host='0.0.0.0', port=5000, debug=True)
+

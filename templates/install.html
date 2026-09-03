@@ -1,0 +1,306 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f172a">
+  <title>Install CyberReport App</title>
+  <link rel="icon" type="image/svg+xml" href="/static/icons/shield.svg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+      min-height: 100vh;
+      color: #f1f5f9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    .hero {
+      text-align: center;
+      padding: 40px 20px 20px;
+      max-width: 480px;
+      width: 100%;
+    }
+    .shield-icon {
+      font-size: 4rem;
+      color: #38bdf8;
+      margin-bottom: 16px;
+      text-shadow: 0 0 30px rgba(56,189,248,0.4);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    .app-name {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, #38bdf8, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+    .app-tagline {
+      font-size: 0.95rem;
+      color: #94a3b8;
+      margin-bottom: 32px;
+      line-height: 1.5;
+    }
+    .qr-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(56,189,248,0.2);
+      border-radius: 20px;
+      padding: 28px;
+      max-width: 360px;
+      width: 100%;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      margin-bottom: 32px;
+    }
+    .qr-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #38bdf8;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+    .qr-wrapper {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      display: inline-block;
+      margin-bottom: 18px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .qr-wrapper img {
+      display: block;
+      width: 200px;
+      height: 200px;
+    }
+    .app-url {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      word-break: break-all;
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-bottom: 16px;
+    }
+    .app-url a {
+      color: #38bdf8;
+      text-decoration: none;
+    }
+    .btn-visit {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 12px 24px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(56,189,248,0.3);
+    }
+    .btn-visit:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(56,189,248,0.5); }
+
+    .features {
+      max-width: 480px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .feature-pill {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 14px 12px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #94a3b8;
+    }
+    .feature-pill i {
+      font-size: 1.3rem;
+      margin-bottom: 6px;
+      display: block;
+      color: #38bdf8;
+    }
+
+    .install-section {
+      max-width: 480px;
+      width: 100%;
+      margin-bottom: 40px;
+    }
+    .install-section h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #f1f5f9;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .install-section h2 i { color: #38bdf8; }
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 800;
+    }
+    .android .step-num { background: rgba(52,211,153,0.2); color: #34d399; border: 1px solid rgba(52,211,153,0.3); }
+    .ios .step-num { background: rgba(99,102,241,0.2); color: #818cf8; border: 1px solid rgba(99,102,241,0.3); }
+    .step-text { font-size: 0.85rem; color: #cbd5e1; line-height: 1.5; }
+    .step-text strong { color: #f1f5f9; }
+
+    .platform-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+    }
+    .platform-badge.android { background: rgba(52,211,153,0.15); color: #34d399; border: 1px solid rgba(52,211,153,0.3); }
+    .platform-badge.ios { background: rgba(99,102,241,0.15); color: #818cf8; border: 1px solid rgba(99,102,241,0.3); }
+
+    footer {
+      text-align: center;
+      color: #475569;
+      font-size: 0.75rem;
+      padding-bottom: 20px;
+    }
+    footer a { color: #38bdf8; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <div class="hero">
+    <div class="shield-icon"><i class="fas fa-shield-halved"></i></div>
+    <div class="app-name">CyberReport</div>
+    <p class="app-tagline">Cyber Crime Reporting System<br>Report incidents · Track cases · Get help</p>
+  </div>
+
+  <!-- QR Code Card -->
+  <div class="qr-card">
+    <div class="qr-label"><i class="fas fa-qrcode"></i> &nbsp;Scan to Open</div>
+    <div class="qr-wrapper">
+      <img src="/static/qr/app_qr.png" alt="QR Code to open CyberReport app">
+    </div>
+    <div class="app-url">
+      <a href="{{ app_url }}" target="_blank">{{ app_url }}</a>
+    </div>
+    <a class="btn-visit" href="{{ app_url }}" target="_blank">
+      <i class="fas fa-external-link-alt"></i> Open App Now
+    </a>
+  </div>
+
+  <!-- App Features -->
+  <div class="features">
+    <div class="feature-pill"><i class="fas fa-file-alt"></i>File Crime Reports</div>
+    <div class="feature-pill"><i class="fas fa-search-location"></i>Track Your Cases</div>
+    <div class="feature-pill"><i class="fas fa-phone-alt"></i>Emergency Contacts</div>
+    <div class="feature-pill"><i class="fas fa-lock"></i>Secure & Private</div>
+  </div>
+
+  <!-- Android Install Instructions -->
+  <div class="install-section">
+    <h2><i class="fab fa-android"></i> Android – Add to Home Screen</h2>
+    <div class="steps android">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text">Scan the QR code or <strong>open the app link</strong> in Chrome browser</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text">Tap the <strong>three-dot menu (⋮)</strong> at the top right of Chrome</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text">Select <strong>"Add to Home screen"</strong> or <strong>"Install app"</strong></div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-text">Tap <strong>"Add"</strong> to confirm — the app icon will appear on your home screen!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- iOS Install Instructions -->
+  <div class="install-section">
+    <h2><i class="fab fa-apple"></i> iPhone / iPad – Add to Home Screen</h2>
+    <div class="steps ios">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text">Scan the QR code or open the app link in <strong>Safari browser</strong> (not Chrome)</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text">Tap the <strong>Share icon</strong> <i class="fas fa-arrow-up-from-bracket" style="font-size:0.75rem;"></i> at the bottom of Safari</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text">Scroll down and tap <strong>"Add to Home Screen"</strong></div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-text">Tap <strong>"Add"</strong> — the CyberReport icon will appear on your home screen!</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2026 CyberReport &mdash; Powered by <a href="https://render.com" target="_blank">Render</a><br>
+    <small>This app installs directly from the browser. No app store required.</small>
+  </footer>
+
+  <script>
+    // Auto-detect platform and highlight relevant section
+    const ua = navigator.userAgent.toLowerCase();
+    if (ua.includes('iphone') || ua.includes('ipad')) {
+      document.querySelectorAll('.install-section')[1].style.border = '1px solid rgba(99,102,241,0.4)';
+      document.querySelectorAll('.install-section')[1].style.borderRadius = '16px';
+      document.querySelectorAll('.install-section')[1].style.padding = '16px';
+    } else if (ua.includes('android')) {
+      document.querySelectorAll('.install-section')[0].style.border = '1px solid rgba(52,211,153,0.4)';
+      document.querySelectorAll('.install-section')[0].style.borderRadius = '16px';
+      document.querySelectorAll('.install-section')[0].style.padding = '16px';
+    }
+  </script>
+</body>
+</html>

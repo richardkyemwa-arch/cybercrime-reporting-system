@@ -90,12 +90,13 @@
         <span>Portal</span>
       </a>
     {% else %}
-      <a href="/login" class="nav-item {{ 'active' if request.path == '/login' or request.path == '/register' }}">
-        <i class="fas fa-user"></i>
-        <span>Account</span>
+      <a href="/install" class="nav-item {{ 'active' if request.path == '/install' }}" title="Install App">
+        <i class="fas fa-download"></i>
+        <span>Install</span>
       </a>
     {% endif %}
   </nav>
+
 
   <!-- Client-side JavaScript -->
   <script src="/static/js/app.js"></script>
