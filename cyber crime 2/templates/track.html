@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}My Cases & Track Status - CyberReport{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+  <h2 style="font-size: 1.4rem; font-weight: 800;"><i class="fas fa-search-location" style="color:var(--primary-light);"></i> My Incident Cases</h2>
+  <p style="font-size: 0.85rem; color: var(--text-muted);">
+    Logged in as: <strong style="color:var(--primary-light);">{{ current_user.full_name }}</strong> ({{ current_user.role.title() }})
+  </p>
+</div>
+
+<!-- My Reports List for Citizen -->
+<div class="card">
+  <div class="card-title">
+    <i class="fas fa-folder-open" style="color:var(--primary-light);"></i>
+    <span>Your Registered Incident Reports</span>
+  </div>
+
+  {% if my_reports %}
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      {% for r in my_reports %}
+        <a href="/track?ref={{ r.reference_no }}" style="text-decoration:none; color:inherit; background:#090d16; border:1px solid var(--border-color); border-radius:8px; padding:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <strong style="color:var(--primary-light); font-size:0.95rem;">{{ r.reference_no }}</strong>
+              <span style="font-size:0.75rem; color:var(--text-muted);">({{ r.created_at.strftime('%b %d, %Y') }})</span>
+            </div>
+            <strong style="display:block; font-size:0.85rem; color:var(--text-main); margin-top:2px;">{{ r.title }}</strong>
+            <span style="font-size:0.75rem; color:var(--text-muted);">Category: {{ r.category.name }}</span>
+          </div>
+
+          <div>
+            {% if r.status == 'Pending' %}
+              <span class="badge badge-pending">Pending</span>
+            {% elif r.status == 'Under Investigation' %}
+              <span class="badge badge-investigating">Investigating</span>
+            {% elif r.status == 'Resolved' %}
+              <span class="badge badge-resolved">Resolved</span>
+            {% else %}
+              <span class="badge badge-dismissed">{{ r.status }}</span>
+            {% endif %}
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p style="font-size:0.85rem; color:var(--text-muted); padding:10px 0;">
+      You have not submitted any cyber crime reports yet.
+      <a href="/report" style="color:var(--primary-light); font-weight:600;">File a new report here</a>.
+    </p>
+  {% endif %}
+</div>
+
+<!-- Reference Lookup Search Form -->
+<div class="card">
+  <div class="card-title">
+    <i class="fas fa-search" style="color:var(--primary-light);"></i>
+    <span>Search by Reference Number</span>
+  </div>
+  <form action="/track" method="GET" style="display:flex; gap:10px; flex-wrap:wrap;">
+    <input type="text" name="ref" class="form-control" style="flex:1; min-width:200px;" value="{{ ref_search }}" placeholder="Enter reference e.g. CCR-2026-X9871A">
+    <button type="submit" class="btn btn-primary">
+      <i class="fas fa-search"></i> Search Case
+    </button>
+  </form>
+</div>
+
+{% if ref_search and not report %}
+  <div class="alert alert-error">
+    <i class="fas fa-exclamation-triangle"></i>
+    <span>No case found for reference "<strong>{{ ref_search }}</strong>" linked to your account.</span>
+  </div>
+{% endif %}
+
+{% if report %}
+<div class="card" style="border-top:4px solid var(--primary-light);">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px; border-bottom:1px solid var(--border-color); padding-bottom:12px; margin-bottom:14px;">
+    <div>
+      <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Selected Case File</span>
+      <h3 style="font-size:1.3rem; color:var(--primary-light);">{{ report.reference_no }}</h3>
+    </div>
+    <div>
+      {% if report.status == 'Pending' %}
+        <span class="badge badge-pending">Pending Review</span>
+      {% elif report.status == 'Under Investigation' %}
+        <span class="badge badge-investigating">Under Investigation</span>
+      {% elif report.status == 'Resolved' %}
+        <span class="badge badge-resolved">Case Resolved</span>
+      {% else %}
+        <span class="badge badge-dismissed">{{ report.status }}</span>
+      {% endif %}
+
+      <span class="badge badge-{{ report.severity | lower }}">{{ report.severity }} Severity</span>
+    </div>
+  </div>
+
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-bottom:18px; font-size:0.85rem;">
+    <div>
+      <span style="color:var(--text-muted); display:block; font-size:0.75rem;">Crime Category</span>
+      <strong>{{ report.category.name }}</strong>
+    </div>
+    <div>
+      <span style="color:var(--text-muted); display:block; font-size:0.75rem;">Submitted Date</span>
+      <strong>{{ report.created_at.strftime('%b %d, %Y') }}</strong>
+    </div>
+    <div>
+      <span style="color:var(--text-muted); display:block; font-size:0.75rem;">Financial Loss</span>
+      <strong>${{ "%.2f"|format(report.financial_loss) }}</strong>
+    </div>
+    <div>
+      <span style="color:var(--text-muted); display:block; font-size:0.75rem;">Assigned Unit</span>
+      <strong>{{ report.investigator.full_name if report.investigator else 'Unassigned Queue' }}</strong>
+    </div>
+  </div>
+
+  <div style="background:#090d16; padding:12px; border-radius:8px; border:1px solid var(--border-color); margin-bottom:20px;">
+    <h4 style="font-size:0.9rem; color:var(--text-main); margin-bottom:4px;">{{ report.title }}</h4>
+    <p style="font-size:0.8rem; color:var(--text-muted);">{{ report.description }}</p>
+  </div>
+
+  <!-- Investigation History Timeline -->
+  <h4 style="font-size:1rem; font-weight:700; margin-bottom:12px; color:var(--text-main);">
+    <i class="fas fa-stream" style="color:var(--primary-light);"></i> Case Progress & Officer Updates
+  </h4>
+
+  <div class="timeline">
+    {% for log in report.status_logs %}
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+            <strong style="font-size:0.85rem; color:var(--primary-light);">{{ log.status }}</strong>
+            <span class="timeline-date">{{ log.created_at.strftime('%b %d, %Y %H:%M') }}</span>
+          </div>
+          <p style="font-size:0.8rem; color:var(--text-main);">{{ log.notes }}</p>
+          <span style="font-size:0.7rem; color:var(--text-muted); display:block; margin-top:4px;">Logged by: {{ log.updated_by }}</span>
+        </div>
+      </div>
+    {% else %}
+      <p style="font-size:0.8rem; color:var(--text-muted);">No officer updates recorded yet.</p>
+    {% endfor %}
+  </div>
+
+</div>
+{% endif %}
+{% endblock %}

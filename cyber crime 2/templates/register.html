@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Register Account - Cyber Crime Reporting System{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 500px; margin: 20px auto;">
+  <div style="text-align: center; margin-bottom: 20px;">
+    <div style="width: 56px; height: 56px; background: rgba(2, 132, 199, 0.2); color: var(--primary-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-size: 1.6rem;">
+      <i class="fas fa-id-card"></i>
+    </div>
+    <h3 style="font-size: 1.35rem; font-weight: 800;">Create System Account</h3>
+    <p style="font-size: 0.8rem; color: var(--text-muted);">Mandatory registration: Select your role to continue</p>
+  </div>
+
+  <form action="/register" method="POST" id="form-register">
+    
+    <!-- Role Selector -->
+    <div class="form-group">
+      <label style="font-weight:700; color:var(--text-main);"><i class="fas fa-user-tag" style="color:var(--primary-light);"></i> Account Role *</label>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px;">
+        <label id="role-option-citizen" class="category-option selected" style="justify-content:center; flex-direction:column; text-align:center; padding:12px;">
+          <input type="radio" name="role" value="citizen" checked onchange="toggleRoleFields()">
+          <i class="fas fa-user" style="font-size:1.4rem;"></i>
+          <strong style="margin-top:4px;">Citizen / Victim</strong>
+          <span style="font-size:0.7rem; color:var(--text-muted);">File & track crime reports</span>
+        </label>
+
+        <label id="role-option-investigator" class="category-option" style="justify-content:center; flex-direction:column; text-align:center; padding:12px;">
+          <input type="radio" name="role" value="investigator" onchange="toggleRoleFields()">
+          <i class="fas fa-user-shield" style="font-size:1.4rem; color:var(--warning);"></i>
+          <strong style="margin-top:4px;">Law Enforcement</strong>
+          <span style="font-size:0.7rem; color:var(--text-muted);">Investigator & Admin</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="full_name">Full Name *</label>
+      <input type="text" id="full_name" name="full_name" class="form-control" placeholder="e.g. Jane Doe or Agent Smith" required>
+    </div>
+
+    <div class="form-group">
+      <label for="email">Official Email Address *</label>
+      <input type="email" id="email" name="email" class="form-control" placeholder="user@domain.com" required>
+    </div>
+
+    <div class="form-group">
+      <label for="phone">Phone Number (For SMS Alerts)</label>
+      <input type="tel" id="phone" name="phone" class="form-control" placeholder="+1 555 019 2831">
+    </div>
+
+    <!-- Officer Specific Fields (Mandatory when Role == investigator) -->
+    <div id="officer-fields" style="display:none; background:#090d16; padding:14px; border-radius:8px; border:1px solid var(--warning); margin-bottom:16px;">
+      <h4 style="font-size:0.85rem; color:var(--warning); margin-bottom:10px;">
+        <i class="fas fa-shield-alt"></i> Law Enforcement Verification Required
+      </h4>
+      <div class="form-group">
+        <label for="badge_number">Badge / Officer ID Number *</label>
+        <input type="text" id="badge_number" name="badge_number" class="form-control" placeholder="e.g. CYBER-OFFICER-9021">
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label for="department">Department / Cyber Crime Unit *</label>
+        <input type="text" id="department" name="department" class="form-control" placeholder="e.g. National Cyber Investigation Division">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="password">Account Password *</label>
+      <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block" style="margin-top: 20px;">
+      <i class="fas fa-user-check"></i> Register Account
+    </button>
+  </form>
+
+  <div style="text-align: center; margin-top: 20px; font-size: 0.85rem;">
+    <span style="color: var(--text-muted);">Already registered?</span>
+    <a href="/login" style="color: var(--primary-light); font-weight: 600; text-decoration: none;">Login to your account</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleRoleFields() {
+  const isInvestigator = document.querySelector('input[name="role"]:checked').value === 'investigator';
+  const officerBox = document.getElementById('officer-fields');
+  const badgeInput = document.getElementById('badge_number');
+  const deptInput = document.getElementById('department');
+  
+  const optCitizen = document.getElementById('role-option-citizen');
+  const optOfficer = document.getElementById('role-option-investigator');
+
+  if (isInvestigator) {
+    officerBox.style.display = 'block';
+    badgeInput.required = true;
+    deptInput.required = true;
+    optCitizen.classList.remove('selected');
+    optOfficer.classList.add('selected');
+  } else {
+    officerBox.style.display = 'none';
+    badgeInput.required = false;
+    deptInput.required = false;
+    optCitizen.classList.add('selected');
+    optOfficer.classList.remove('selected');
+  }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+
+{% block title %}Investigator Portal - CyberReport{% endblock %}
+
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom:20px; gap:10px;">
+  <div>
+    <h2 style="font-size: 1.4rem; font-weight: 800;">
+      <i class="fas fa-user-shield" style="color:var(--primary-light);"></i> Law Enforcement Portal
+    </h2>
+    <p style="font-size: 0.85rem; color: var(--text-muted);">
+      Review incoming cyber crime reports, inspect digital evidence, update investigation status.
+    </p>
+  </div>
+  <a href="/logout" class="btn btn-secondary" style="font-size:0.8rem; padding:6px 12px;">
+    <i class="fas fa-sign-out-alt"></i> Logout
+  </a>
+</div>
+
+<!-- Metrics Overview -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-number">{{ stats.total }}</div>
+    <div class="stat-label">Total Reports</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number" style="color:var(--warning);">{{ stats.pending }}</div>
+    <div class="stat-label">Pending Queue</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number" style="color:var(--primary-light);">{{ stats.investigating }}</div>
+    <div class="stat-label">Under Investigation</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number" style="color:var(--success);">{{ stats.resolved }}</div>
+    <div class="stat-label">Resolved</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number" style="color:var(--danger);">{{ stats.critical }}</div>
+    <div class="stat-label">Critical Urgency</div>
+  </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="card" style="padding:14px;">
+  <form action="/dashboard" method="GET" style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+    <span style="font-size:0.85rem; font-weight:600; color:var(--text-muted);"><i class="fas fa-filter"></i> Filters:</span>
+    
+    <select name="status" class="form-control" style="width:auto; min-width:140px;" onchange="this.form.submit()">
+      <option value="all" {{ 'selected' if current_status == 'all' }}>All Statuses</option>
+      <option value="Pending" {{ 'selected' if current_status == 'Pending' }}>Pending</option>
+      <option value="Under Investigation" {{ 'selected' if current_status == 'Under Investigation' }}>Under Investigation</option>
+      <option value="Resolved" {{ 'selected' if current_status == 'Resolved' }}>Resolved</option>
+      <option value="Dismissed" {{ 'selected' if current_status == 'Dismissed' }}>Dismissed</option>
+    </select>
+
+    <select name="severity" class="form-control" style="width:auto; min-width:140px;" onchange="this.form.submit()">
+      <option value="all" {{ 'selected' if current_severity == 'all' }}>All Severities</option>
+      <option value="Low" {{ 'selected' if current_severity == 'Low' }}>Low</option>
+      <option value="Medium" {{ 'selected' if current_severity == 'Medium' }}>Medium</option>
+      <option value="High" {{ 'selected' if current_severity == 'High' }}>High</option>
+      <option value="Critical" {{ 'selected' if current_severity == 'Critical' }}>Critical</option>
+    </select>
+
+    <select name="category" class="form-control" style="width:auto; min-width:160px;" onchange="this.form.submit()">
+      <option value="all" {{ 'selected' if current_category == 'all' }}>All Categories</option>
+      {% for cat in categories %}
+        <option value="{{ cat.id }}" {{ 'selected' if current_category == cat.id|string }}>{{ cat.name }}</option>
+      {% endfor %}
+    </select>
+
+    <a href="/dashboard" class="btn btn-secondary" style="font-size:0.8rem; padding:8px 12px;">Reset</a>
+  </form>
+</div>
+
+<!-- Reports Table -->
+<div class="card" style="padding:0; overflow:hidden;">
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Reference</th>
+          <th>Date</th>
+          <th>Category</th>
+          <th>Title</th>
+          <th>Loss ($)</th>
+          <th>Severity</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for report in reports %}
+          <tr>
+            <td><strong style="color:var(--primary-light);">{{ report.reference_no }}</strong></td>
+            <td>{{ report.created_at.strftime('%b %d, %Y') }}</td>
+            <td>{{ report.category.name }}</td>
+            <td>{{ report.title[:30] }}...</td>
+            <td>${{ "%.2f"|format(report.financial_loss) }}</td>
+            <td><span class="badge badge-{{ report.severity | lower }}">{{ report.severity }}</span></td>
+            <td>
+              {% if report.status == 'Pending' %}
+                <span class="badge badge-pending">Pending</span>
+              {% elif report.status == 'Under Investigation' %}
+                <span class="badge badge-investigating">Investigating</span>
+              {% elif report.status == 'Resolved' %}
+                <span class="badge badge-resolved">Resolved</span>
+              {% else %}
+                <span class="badge badge-dismissed">{{ report.status }}</span>
+              {% endif %}
+            </td>
+            <td>
+              <button class="btn btn-primary btn-inspect" style="font-size:0.75rem; padding:4px 10px; min-height:auto;" data-id="{{ report.id }}">
+                <i class="fas fa-eye"></i> Inspect
+              </button>
+            </td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="8" style="text-align:center; padding:30px; color:var(--text-muted);">
+              No cyber crime reports found matching the selected filters.
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Case Detail Modal -->
+<div id="modal-case-detail" class="modal-backdrop">
+  <div class="modal-content">
+    <button class="modal-close" id="btn-close-modal">&times;</button>
+
+    <div style="border-bottom:1px solid var(--border-color); padding-bottom:12px; margin-bottom:16px;">
+      <span style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Investigator Case File</span>
+      <h3 id="modal-ref-no" style="color:var(--primary-light); font-size:1.4rem;">CCR-2026-XXXXXX</h3>
+      <div id="modal-badges" style="margin-top:4px;"></div>
+    </div>
+
+    <!-- Modal Content Details -->
+    <div id="modal-body-content">
+      <div style="text-align:center; padding:30px; color:var(--text-muted);">
+        <i class="fas fa-spinner fa-spin fa-2x"></i>
+        <p style="margin-top:10px;">Loading incident details...</p>
+      </div>
+    </div>
+
+    <!-- Update Form -->
+    <div style="margin-top:20px; border-top:1px solid var(--border-color); padding-top:16px;">
+      <h4 style="font-size:0.95rem; margin-bottom:10px;"><i class="fas fa-pen"></i> Update Investigation Status</h4>
+      
+      <form id="form-update-status" method="POST" action="">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Case Status</label>
+            <select name="status" id="update_status" class="form-control">
+              <option value="Pending">Pending Review</option>
+              <option value="Under Investigation">Under Investigation</option>
+              <option value="Resolved">Resolved</option>
+              <option value="Dismissed">Dismissed</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Severity Level</label>
+            <select name="severity" id="update_severity" class="form-control">
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+              <option value="Critical">Critical</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Investigator Case Note / Update Message</label>
+          <textarea name="notes" class="form-control" placeholder="Enter status update notes visible to report tracker..." required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-success btn-block">
+          <i class="fas fa-save"></i> Save Status Update
+        </button>
+      </form>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const modal = document.getElementById('modal-case-detail');
+  const btnClose = document.getElementById('btn-close-modal');
+  const modalBody = document.getElementById('modal-body-content');
+  const updateForm = document.getElementById('form-update-status');
+
+  document.querySelectorAll('.btn-inspect').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const reportId = btn.getAttribute('data-id');
+      updateForm.action = `/admin/report/${reportId}/update`;
+      modal.classList.add('show');
+
+      fetch(`/admin/report/${reportId}/details`)
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('modal-ref-no').textContent = data.reference_no;
+          document.getElementById('update_status').value = data.status;
+          document.getElementById('update_severity').value = data.severity;
+
+          let evidencesHtml = '';
+          if (data.evidences.length > 0) {
+            evidencesHtml = data.evidences.map(e => `
+              <a href="${e.url}" target="_blank" style="display:inline-flex; align-items:center; gap:6px; background:#090d16; border:1px solid #334155; padding:6px 12px; border-radius:6px; color:#38bdf8; text-decoration:none; font-size:0.8rem; margin:4px 4px 4px 0;">
+                <i class="fas fa-file-download"></i> ${e.name} (${e.size_kb} KB)
+              </a>
+            `).join('');
+          } else {
+            evidencesHtml = '<span style="font-size:0.8rem; color:#94a3b8;">No attached files</span>';
+          }
+
+          let historyHtml = data.history.map(h => `
+            <div style="background:#090d16; padding:8px 12px; border-radius:6px; margin-bottom:6px; font-size:0.8rem;">
+              <strong style="color:#38bdf8">${h.status}</strong> <span style="color:#94a3b8">(${h.date} by ${h.updated_by})</span>
+              <p style="color:#f8fafc; margin-top:2px;">${h.notes}</p>
+            </div>
+          `).join('');
+
+          modalBody.innerHTML = `
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; font-size:0.85rem;">
+              <div><strong>Category:</strong> ${data.category}</div>
+              <div><strong>Submitted:</strong> ${data.created_at}</div>
+              <div><strong>Reporter:</strong> ${data.reporter_name} (${data.reporter_email})</div>
+              <div><strong>Financial Loss:</strong> $${data.financial_loss.toFixed(2)} ${data.currency}</div>
+            </div>
+
+            <div style="background:#090d16; padding:12px; border-radius:8px; margin-bottom:14px;">
+              <strong style="font-size:0.9rem; color:#f8fafc;">${data.title}</strong>
+              <p style="font-size:0.85rem; color:#94a3b8; margin-top:4px;">${data.description}</p>
+            </div>
+
+            <div style="margin-bottom:14px; font-size:0.85rem;">
+              <strong style="color:#f59e0b;"><i class="fas fa-user-secret"></i> Suspect Information:</strong>
+              <p style="color:#94a3b8;">Name/Alias: ${data.suspect_name || 'N/A'}<br>Contact: ${data.suspect_contact || 'N/A'}<br>Bank/Wallet: ${data.suspect_bank_details || 'N/A'}</p>
+            </div>
+
+            ${data.latitude ? `
+              <div style="margin-bottom:14px; font-size:0.85rem;">
+                <strong style="color:#38bdf8;"><i class="fas fa-location-dot"></i> Incident Location:</strong>
+                <p style="color:#94a3b8;">GPS: ${data.latitude}, ${data.longitude} (${data.location_address || 'Address not specified'})</p>
+              </div>
+            ` : ''}
+
+            <div style="margin-bottom:14px;">
+              <strong style="font-size:0.85rem; color:#f8fafc;">Digital Evidence Files:</strong>
+              <div>${evidencesHtml}</div>
+            </div>
+
+            <div>
+              <strong style="font-size:0.85rem; color:#f8fafc;">Status History:</strong>
+              <div>${historyHtml}</div>
+            </div>
+          `;
+        });
+    });
+  });
+
+  if (btnClose) {
+    btnClose.addEventListener('click', () => modal.classList.remove('show'));
+  }
+  window.addEventListener('click', (e) => {
+    if (e.target === modal) modal.classList.remove('show');
+  });
+});
+</script>
+{% endblock %}

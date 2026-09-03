@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Account Login - Cyber Crime Reporting System{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 440px; margin: 30px auto;">
+  <div style="text-align: center; margin-bottom: 20px;">
+    <div style="width: 56px; height: 56px; background: rgba(2, 132, 199, 0.2); color: var(--primary-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-size: 1.6rem;">
+      <i class="fas fa-user-lock"></i>
+    </div>
+    <h3 style="font-size: 1.35rem; font-weight: 800;">Account Login</h3>
+    <p style="font-size: 0.8rem; color: var(--text-muted);">Mandatory login: Select role & enter credentials</p>
+  </div>
+
+  <form action="/login{{ '?next=' + request.args.get('next') if request.args.get('next') else '' }}" method="POST">
+    
+    <!-- Role Switcher for Login -->
+    <div class="form-group">
+      <label style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Logging in as:</label>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:4px;">
+        <label id="login-role-citizen" class="category-option selected" style="justify-content:center; padding:8px; font-size:0.85rem;">
+          <input type="radio" name="role" value="citizen" checked onchange="toggleLoginRoleUI()">
+          <i class="fas fa-user"></i> Citizen
+        </label>
+        <label id="login-role-officer" class="category-option" style="justify-content:center; padding:8px; font-size:0.85rem;">
+          <input type="radio" name="role" value="investigator" onchange="toggleLoginRoleUI()">
+          <i class="fas fa-user-shield" style="color:var(--warning);"></i> Officer
+        </label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email Address</label>
+      <input type="email" id="email" name="email" class="form-control" placeholder="user@domain.com" required>
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block" style="margin-top: 20px;">
+      <i class="fas fa-sign-in-alt"></i> Login to Portal
+    </button>
+  </form>
+
+  <div style="background:#090d16; padding:12px; border-radius:8px; border:1px solid var(--border-color); margin-top:20px; font-size:0.75rem; color:var(--text-muted);">
+    <strong style="color:var(--primary-light);">Demo Role Accounts:</strong><br>
+    <strong>Investigator Admin:</strong> admin@cybercrime.gov / AdminPassword123 (Select <em>Officer</em> role)<br>
+    <strong>Citizen Account:</strong> citizen@example.com / Citizen123 (Select <em>Citizen</em> role)
+  </div>
+
+  <div style="text-align: center; margin-top: 20px; font-size: 0.85rem;">
+    <span style="color: var(--text-muted);">Don't have an account?</span>
+    <a href="/register" style="color: var(--primary-light); font-weight: 600; text-decoration: none;">Register Role Account</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleLoginRoleUI() {
+  const role = document.querySelector('input[name="role"]:checked').value;
+  const optCitizen = document.getElementById('login-role-citizen');
+  const optOfficer = document.getElementById('login-role-officer');
+  if (role === 'investigator') {
+    optCitizen.classList.remove('selected');
+    optOfficer.classList.add('selected');
+  } else {
+    optCitizen.classList.add('selected');
+    optOfficer.classList.remove('selected');
+  }
+}
+</script>
+{% endblock %}

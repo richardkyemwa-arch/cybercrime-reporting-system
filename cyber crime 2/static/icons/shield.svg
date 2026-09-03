@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="50%" stop-color="#0284c7"/>
+      <stop offset="100%" stop-color="#0369a1"/>
+    </linearGradient>
+    <linearGradient id="innerShieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background Card -->
+  <rect width="512" height="512" rx="96" fill="url(#bgGrad)"/>
+
+  <!-- Outer Glowing Shield -->
+  <path d="M 256,64 L 400,112 C 400,320 256,432 256,432 C 256,432 112,320 112,112 Z" 
+        fill="url(#shieldGrad)" 
+        stroke="#7dd3fc" 
+        stroke-width="8" 
+        stroke-linejoin="round"/>
+
+  <!-- Inner Shield Layer -->
+  <path d="M 256,96 L 370,134 C 370,300 256,392 256,392 C 256,392 142,300 142,134 Z" 
+        fill="url(#innerShieldGrad)" 
+        stroke="#0284c7" 
+        stroke-width="6"/>
+
+  <!-- Security Emblem / Lock / Check Shield Center -->
+  <path d="M 256,150 L 320,172 C 320,260 256,310 256,310 C 256,310 192,260 192,172 Z" 
+        fill="url(#shieldGrad)"/>
+
+  <!-- White Security Checkmark -->
+  <path d="M 226,226 L 246,246 L 288,200" 
+        fill="none" 
+        stroke="#ffffff" 
+        stroke-width="16" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"/>
+</svg>
