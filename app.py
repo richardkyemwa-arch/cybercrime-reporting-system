@@ -54,7 +54,7 @@ class Category(db.Model):
 class Report(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     reference_no = db.Column(db.String(30), unique=True, nullable=False, index=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     reporter_name = db.Column(db.String(100), nullable=False)
     reporter_email = db.Column(db.String(120), nullable=False)
     reporter_phone = db.Column(db.String(20), nullable=True)

@@ -68,7 +68,7 @@ def seed():
         admin = User.query.filter_by(email='admin@cybercrime.gov').first()
         if not admin:
             admin = User(
-                full_name="Agent Sarah Connor",
+                full_name="Admin Officer",
                 email="admin@cybercrime.gov",
                 phone="+1-800-CYBER-01",
                 role="investigator",
@@ -82,7 +82,7 @@ def seed():
         citizen = User.query.filter_by(email='citizen@example.com').first()
         if not citizen:
             citizen = User(
-                full_name="John Doe",
+                full_name="Demo User",
                 email="citizen@example.com",
                 phone="+1-555-0192",
                 role="citizen",
@@ -138,7 +138,7 @@ def seed():
             sample1 = Report(
                 reference_no="CCR-2026-X9871A",
                 user_id=citizen.id,
-                reporter_name="John Doe",
+                reporter_name="Demo User",
                 reporter_email="citizen@example.com",
                 reporter_phone="+1-555-0192",
                 category_id=phish_cat.id,
