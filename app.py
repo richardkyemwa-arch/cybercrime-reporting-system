@@ -170,104 +170,117 @@ def index():
 
 
 @app.route('/report', methods=['GET', 'POST'])
-@login_required
+
 def report_crime():
-    current_user = User.query.get_or_404(session['user_id'])
-    
+    # Determine current user if logged in
+    user_id = session.get('user_id')
+    current_user = User.query.get(user_id) if user_id else None
+
     if request.method == 'GET':
         categories = Category.query.all()
         return render_template('report.html', categories=categories, current_user=current_user)
-    
-    try:
-        category_id = int(request.form.get('category_id', 1))
-        title = request.form.get('title', '').strip()
-        description = request.form.get('description', '').strip()
-        incident_date = request.form.get('incident_date', '')
-        financial_loss = float(request.form.get('financial_loss', 0.0) or 0.0)
-        currency = request.form.get('currency', 'USD')
-        platform_used = request.form.get('platform_used', '').strip()
-        
-        suspect_name = request.form.get('suspect_name', '').strip()
-        suspect_contact = request.form.get('suspect_contact', '').strip()
-        suspect_bank_details = request.form.get('suspect_bank_details', '').strip()
-        
-        lat = request.form.get('latitude')
-        lng = request.form.get('longitude')
-        latitude = float(lat) if lat else None
-        longitude = float(lng) if lng else None
-        location_address = request.form.get('location_address', '').strip()
-        
-        severity = 'Medium'
-        if financial_loss >= 10000 or 'ransomware' in title.lower() or 'extortion' in title.lower():
-            severity = 'Critical'
-        elif financial_loss >= 1000:
-            severity = 'High'
-            
-        ref_no = generate_reference_no()
 
-        new_report = Report(
-            reference_no=ref_no,
-            user_id=current_user.id,
-            reporter_name=current_user.full_name,
-            reporter_email=current_user.email,
-            reporter_phone=current_user.phone or request.form.get('reporter_phone', '').strip(),
-            category_id=category_id,
-            title=title,
-            description=description,
-            incident_date=incident_date,
-            financial_loss=financial_loss,
-            currency=currency,
-            platform_used=platform_used,
-            suspect_name=suspect_name,
-            suspect_contact=suspect_contact,
-            suspect_bank_details=suspect_bank_details,
-            latitude=latitude,
-            longitude=longitude,
-            location_address=location_address,
-            severity=severity,
-            status='Pending'
-        )
-        
-        db.session.add(new_report)
-        db.session.flush()
+    # POST handling
+    # Check if the submission should be anonymous
+    anonymous = request.form.get('anonymous') == 'on'
 
-        uploaded_files = request.files.getlist('evidence_files')
-        for file in uploaded_files:
-            if file and file.filename:
-                orig_name = secure_filename(file.filename)
-                ext = orig_name.rsplit('.', 1)[1].lower() if '.' in orig_name else 'bin'
-                unique_filename = f"{uuid.uuid4().hex}.{ext}"
-                file_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
-                file.save(file_path)
-                file_size = os.path.getsize(file_path)
-                
-                evidence = Evidence(
-                    report_id=new_report.id,
-                    file_name=unique_filename,
-                    original_name=orig_name,
-                    file_type=ext,
-                    file_size=file_size
-                )
-                db.session.add(evidence)
-                
-        log = ReportStatusLog(
-            report_id=new_report.id,
-            status='Pending',
-            notes=f'Report received from authenticated account ({current_user.email}). Queued for investigator review.',
-            updated_by='System'
-        )
-        db.session.add(log)
-        db.session.commit()
-        
-        return jsonify({
-            'success': True,
-            'reference_no': ref_no,
-            'message': 'Report submitted successfully under your registered account.'
-        })
+    # Use form-provided reporter info for anonymous reports
+    if anonymous or not current_user:
+        reporter_name = request.form.get('reporter_name', '').strip()
+        reporter_email = request.form.get('reporter_email', '').strip()
+        reporter_phone = request.form.get('reporter_phone', '').strip()
+        user_fk = None
+    else:
+        reporter_name = current_user.full_name
+        reporter_email = current_user.email
+        reporter_phone = current_user.phone or request.form.get('reporter_phone', '').strip()
+        user_fk = current_user.id
 
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'success': False, 'error': str(e)}), 400
+    # Continue with existing fields
+    category_id = int(request.form.get('category_id', 1))
+    title = request.form.get('title', '').strip()
+    description = request.form.get('description', '').strip()
+    incident_date = request.form.get('incident_date', '')
+    financial_loss = float(request.form.get('financial_loss', 0.0) or 0.0)
+    currency = request.form.get('currency', 'USD')
+    platform_used = request.form.get('platform_used', '').strip()
+
+    suspect_name = request.form.get('suspect_name', '').strip()
+    suspect_contact = request.form.get('suspect_contact', '').strip()
+    suspect_bank_details = request.form.get('suspect_bank_details', '').strip()
+
+    lat = request.form.get('latitude')
+    lng = request.form.get('longitude')
+    latitude = float(lat) if lat else None
+    longitude = float(lng) if lng else None
+    location_address = request.form.get('location_address', '').strip()
+
+    severity = 'Medium'
+    if financial_loss >= 10000 or 'ransomware' in title.lower() or 'extortion' in title.lower():
+        severity = 'Critical'
+    elif financial_loss >= 1000:
+        severity = 'High'
+
+    ref_no = generate_reference_no()
+
+    new_report = Report(
+
+        user_id=user_fk,
+        reporter_name=reporter_name,
+        reporter_email=reporter_email,
+        reporter_phone=reporter_phone,
+        category_id=category_id,
+        title=title,
+        description=description,
+        incident_date=incident_date,
+        financial_loss=financial_loss,
+        currency=currency,
+        platform_used=platform_used,
+        suspect_name=suspect_name,
+        suspect_contact=suspect_contact,
+        suspect_bank_details=suspect_bank_details,
+        latitude=latitude,
+        longitude=longitude,
+        location_address=location_address,
+        severity=severity,
+        status='Pending'
+    )
+    db.session.add(new_report)
+    db.session.flush()
+
+    # Handle file uploads
+    uploaded_files = request.files.getlist('evidence_files')
+    for file in uploaded_files:
+        if file and file.filename:
+            orig_name = secure_filename(file.filename)
+            ext = orig_name.rsplit('.', 1)[1].lower() if '.' in orig_name else 'bin'
+            unique_filename = f"{uuid.uuid4().hex}.{ext}"
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
+            file.save(file_path)
+            file_size = os.path.getsize(file_path)
+            evidence = Evidence(
+                report_id=new_report.id,
+                file_name=unique_filename,
+                original_name=orig_name,
+                file_type=ext,
+                file_size=file_size
+            )
+            db.session.add(evidence)
+
+    # Log the report submission
+    log = ReportStatusLog(
+        report_id=new_report.id,
+        status='Pending',
+        notes='Report received {}. Queued for investigator review.'.format('anonymously' if anonymous else f'from authenticated account ({current_user.email})'),
+        updated_by='System'
+    )
+    db.session.add(log)
+    db.session.commit()
+    return jsonify({
+        'success': True,
+        'reference_no': ref_no,
+        'message': 'Report submitted successfully under your registered account.'
+    })
 
 
 @app.route('/track', methods=['GET'])
@@ -503,6 +516,47 @@ def dashboard():
     
     return render_template('dashboard.html', reports=reports, categories=categories, stats=stats, 
                            current_status=status_filter, current_severity=severity_filter, current_category=category_filter)
+
+
+# -------------------------------------------------------------------
+# Route - User Profile
+# -------------------------------------------------------------------
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    user = User.query.get_or_404(session['user_id'])
+    if request.method == 'POST':
+        # Update basic fields
+        full_name = request.form.get('full_name', '').strip()
+        phone = request.form.get('phone', '').strip()
+        if full_name:
+            user.full_name = full_name
+        user.phone = phone if phone else None
+
+        # Update password if provided
+        new_password = request.form.get('new_password', '')
+        confirm_password = request.form.get('confirm_password', '')
+        if new_password:
+            if len(new_password) < 8:
+                flash('New password must be at least 8 characters long.', 'error')
+                return render_template('profile.html', current_user=user)
+            if new_password != confirm_password:
+                flash('Passwords do not match.', 'error')
+                return render_template('profile.html', current_user=user)
+            user.set_password(new_password)
+            flash('Password updated successfully.', 'success')
+
+        # Investigator specific fields
+        if user.role == 'investigator':
+            badge_number = request.form.get('badge_number', '').strip()
+            department = request.form.get('department', '').strip()
+            user.badge_number = badge_number if badge_number else None
+            user.department = department if department else None
+
+        db.session.commit()
+        flash('Profile updated successfully.', 'success')
+        return redirect(url_for('profile'))
+    return render_template('profile.html', current_user=user)
 
 
 @app.route('/admin/report/<int:report_id>/update', methods=['POST'])

@@ -121,10 +121,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Anonymity Toggle Logic
     const anonCheck = document.getElementById('is_anonymous');
-    const reporterInfoBox = document.getElementById('reporter-personal-info');
-    if (anonCheck && reporterInfoBox) {
+    const authInfoBox = document.getElementById('auth-info');
+    const anonFieldsBox = document.getElementById('anonymous-fields');
+    if (anonCheck && authInfoBox && anonFieldsBox) {
       anonCheck.addEventListener('change', () => {
-        reporterInfoBox.style.display = anonCheck.checked ? 'none' : 'block';
+        const anon = anonCheck.checked;
+        authInfoBox.style.display = anon ? 'none' : 'block';
+        anonFieldsBox.style.display = anon ? 'block' : 'none';
       });
     }
 

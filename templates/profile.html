@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<h2>User Profile</h2>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<form method="POST" action="{{ url_for('profile') }}">
+  <label for="full_name">Full Name:</label><br>
+  <input type="text" id="full_name" name="full_name" value="{{ current_user.full_name }}"><br><br>
+
+  <label for="phone">Phone:</label><br>
+  <input type="text" id="phone" name="phone" value="{{ current_user.phone }}"><br><br>
+
+  {% if current_user.role == 'investigator' %}
+    <label for="badge_number">Badge Number:</label><br>
+    <input type="text" id="badge_number" name="badge_number" value="{{ current_user.badge_number }}"><br><br>
+
+    <label for="department">Department:</label><br>
+    <input type="text" id="department" name="department" value="{{ current_user.department }}"><br><br>
+  {% endif %}
+
+  <h3>Change Password (optional)</h3>
+  <label for="new_password">New Password:</label><br>
+  <input type="password" id="new_password" name="new_password"><br><br>
+
+  <label for="confirm_password">Confirm New Password:</label><br>
+  <input type="password" id="confirm_password" name="confirm_password"><br><br>
+
+  <button type="submit">Save Changes</button>
+</form>
+{% endblock %}
