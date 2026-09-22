@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cyber-report-v1';
+const CACHE_NAME = 'cyber-report-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/report',
