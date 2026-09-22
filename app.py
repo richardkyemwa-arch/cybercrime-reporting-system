@@ -224,7 +224,7 @@ def report_crime():
     ref_no = generate_reference_no()
 
     new_report = Report(
-
+        reference_no=ref_no,
         user_id=user_fk,
         reporter_name=reporter_name,
         reporter_email=reporter_email,
